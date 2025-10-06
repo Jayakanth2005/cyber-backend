@@ -19,6 +19,9 @@ import { Job } from './jobs/entities/job.entity';
       database: process.env.PGDATABASE || 'jk_database',
       entities: [Job],
       synchronize: true, // Set to false in production
+      ssl: {
+    rejectUnauthorized: false, // ✅ important for Railway
+  },
     }),
     JobsModule,
   ],
