@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JobsModule } from './jobs/jobs.module';
 import { Job } from './jobs/entities/job.entity';
 
@@ -8,21 +8,27 @@ import { Job } from './jobs/entities/job.entity';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      // This ensures that variables from the process environment (like Railway's) are loaded.
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      // Updated to use Railway's standard variables
-      host: process.env.PGHOST || 'localhost',
-      port: parseInt(process.env.PGPORT || '5432'),
-      username: process.env.PGUSER || 'postgres',
-      password: process.env.PGPASSWORD || 'karthi',
-      database: process.env.PGDATABASE || 'jk_database',
-      entities: [Job],
-      synchronize: true, // Set to false in production
-      ssl: {
-    rejectUnauthorized: false, // ✅ important for Railway
-  },
+    
+    // This is the updated, asynchronous configuration
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('PGHOST', 'localhost'),
+        port: configService.get<number>('PGPORT', 5432),
+        username: configService.get<string>('PGUSER', 'postgres'),
+        password: configService.get<string>('PGPASSWORD', 'karthi'),
+        database: configService.get<string>('PGDATABASE', 'jk_database'),
+        entities: [Job],
+        synchronize: true, // Remember to set this to false in production
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      }),
     }),
+    
     JobsModule,
   ],
 })
