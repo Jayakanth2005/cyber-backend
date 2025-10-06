@@ -8,11 +8,9 @@ import { Job } from './jobs/entities/job.entity';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      // This ensures that variables from the process environment (like Railway's) are loaded.
       ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),
-    
-    // This is the updated, asynchronous configuration
+
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -24,11 +22,11 @@ import { Job } from './jobs/entities/job.entity';
         password: configService.get<string>('PGPASSWORD', 'karthi'),
         database: configService.get<string>('PGDATABASE', 'jk_database'),
         entities: [Job],
-        synchronize: true, // Remember to set this to false in production
-        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+        synchronize: true, // Set to false in production
+        // The SSL line has been removed from here
       }),
     }),
-    
+
     JobsModule,
   ],
 })
