@@ -11,13 +11,15 @@ import { Job } from './jobs/entities/job.entity';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432'),
-      username: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'karthi',
-      database: process.env.DB_NAME || 'jk_database',
+      // --- Use these Railway-provided variable names ---
+      host: process.env.PGHOST,
+      port: parseInt(process.env.PGPORT, 10),
+      username: process.env.PGUSER,
+      password: process.env.PGPASSWORD,
+      database: process.env.PGDATABASE,
+      // ---------------------------------------------
       entities: [Job],
-      synchronize: true, // Set to false in production
+      synchronize: true, // Remember to set to false in production for safety
     }),
     JobsModule,
   ],
