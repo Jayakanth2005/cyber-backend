@@ -16,11 +16,11 @@ import { Job } from './jobs/entities/job.entity';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        host: configService.get<string>('PGHOST', 'localhost'),
+        host: configService.get<string>('PGHOST'),
         port: configService.get<number>('PGPORT', 5432),
         username: configService.get<string>('PGUSER', 'postgres'),
-        password: configService.get<string>('PGPASSWORD', 'karthi'),
-        database: configService.get<string>('PGDATABASE', 'jk_database'),
+        password: configService.get<string>('PGPASSWORD'),
+        database: configService.get<string>('PGDATABASE'),
         entities: [Job],
         synchronize: true, // Set to false in production
         // The SSL line has been removed from here
