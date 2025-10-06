@@ -8,7 +8,6 @@ import { Job } from './jobs/entities/job.entity';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),
     
     TypeOrmModule.forRootAsync({
@@ -16,17 +15,13 @@ import { Job } from './jobs/entities/job.entity';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        host: configService.get<string>('PGHOST'),
-        port: configService.get<number>('PGPORT'),
-        username: configService.get<string>('PGUSER'),
-        password: configService.get<string>('PGPASSWORD'),
-        database: configService.get<string>('PGDATABASE'),
+        // Use the single DATABASE_URL provided by Railway
+        url: configService.get<string>('DATABASE_URL'),
         entities: [Job],
         synchronize: true, // Set to false in production
-        
-        // --- Add this retry logic ---
-        retryAttempts: 10,
-        retryDelay: 3000,
+        ssl: {
+          rejectUnauthorized: false, // Required for Railway's secure connection
+        },
       }),
     }),
     
